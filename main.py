@@ -61,25 +61,24 @@ filenames = download_files_if_not_already_present(
     "pdfs", extract_links_from_html(), "*Ch*.pdf"
 )
 
-print("Working with " + filenames[0])
-all_tables = read_pdf(filenames[0], pages="all")
-
-# Show the total number of tables in the file
-print("Total number of table: {}".format(all_tables.n))
-
 # Combine all the tables to one
 dfs = []
-for t in range(all_tables.n):
-    df = all_tables[t].df
 
-    # Set the column names correctly
-    df.columns = df.iloc[0]
-    df.drop(df.index[0])
+for filename in filenames:
+    print("Working with " + filename)
+    all_tables = read_pdf(filename, pages="all")
 
-    # Filter the rows with empty HS Codes or table headers that have "HS Code" in that column
-    df = df[df["HS Code"] != ""]
-    df = df[df["HS Code"] != "HS Code"]
-    dfs.append(df)
+    for t in range(all_tables.n):
+        df = all_tables[t].df
+
+        # Set the column names correctly
+        df.columns = df.iloc[0]
+        df.drop(df.index[0])
+
+        # Filter the rows with empty HS Codes or table headers that have "HS Code" in that column
+        df = df[df["HS Code"] != ""]
+        df = df[df["HS Code"] != "HS Code"]
+        dfs.append(df)
 
 res_1 = pd.concat(dfs, ignore_index=True)
 res_1.to_csv("result.csv")
